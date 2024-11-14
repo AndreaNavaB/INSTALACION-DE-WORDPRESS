@@ -1,0 +1,82 @@
+#!/bin/bash
+sudo apt update
+sudo apt install -y apache2 mariadb-server php libapache2-mod-php
+php-mysql
+sudo systemctl start apache2
+sudo systemctl enable apache2
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+sudo mysql -u root -e "CREATE DATABASE wordpress; CREATE USER
+'wordpressuser'@'localhost' IDENTIFIED BY 'cloudwars'; GRANT ALL
+PRIVILEGES ON wordpress.* TO 'wordpressuser'@'localhost'; FLUSH
+PRIVILEGES;"
+wget https://wordpress.org/latest.tar.gz
+tar -xzvf latest.tar.gz
+cd wordpress
+cp wp-config-sample.php wp-config.php
+sed -i "s/database_name_here/wordpress/g" wp-config.php && \
+sed -i "s/username_here/wordpressuser/g" wp-config.php && \
+sed -i "s/password_here/cloudwars/g" wp-config.php
+sudo cp -r * /var/www/html/
+sudo chown -R www-data:www-data /var/www/html/
+
+#PASO A PASO (OPCIONAL)
+#Paso 1: Lanzar una Instancia EC2
+#Primero, asegúrate de lanzar una instancia EC2 desde la consola de AWS. Debes elegir
+#una AMI de Ubuntu, asignar un grupo de seguridad con puertos 22 (SSH) y 80 (HTTP)
+#abiertos, y asociar una clave SSH para el acceso (Vockey).
+
+#Paso 2: Conectarse a la Instancia EC2
+ssh -i "tu_clave.pem" ubuntu@tu-direccion-ip-publica
+#O hacerlo por putty.
+
+#Paso 3: Instalar Apache, MySQL, PHP (LAMP Stack)
+#En Ubuntu:
+sudo apt update
+sudo apt install -y apache2 mariadb-server php libapache2-mod-php
+php-mysql
+sudo systemctl start apache2
+sudo systemctl enable apache2
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+#Paso 4: Configurar la Base de Datos para WordPress
+sudo mysql -u root -p
+#(Da enter cuando te pida una contraseña)
+#Ejecuta los siguientes comandos SQL:
+CREATE DATABASE wordpress;
+CREATE USER 'wordpressuser'@'localhost' IDENTIFIED BY 'cloudwars';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpressuser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+#Paso 5: Instalar WordPress
+wget https://wordpress.org/latest.tar.gz
+tar -xzvf latest.tar.gz
+cd wordpress
+cp wp-config-sample.php wp-config.php
+Edita el archivo wp-config.php para configurar los detalles de la base de datos:
+define('DB_NAME', 'wordpress');
+define('DB_USER', 'wordpressuser');
+define('DB_PASSWORD', 'cloudwars');
+define('DB_HOST', 'localhost');
+
+#Recuerda para salir de nano dar CTRL + O Enter y CTRL + X
+#Mueve los archivos de WordPress al directorio raíz de Apache:
+#En Ubuntu:
+sudo cp -r * /var/www/html/
+sudo chown -R www-data:www-data /var/www/html/
+
+#Paso 6: Finalizar la Instalación
+#Abre tu navegador y ve a http://tu-direccion-ip-publica/index.php para
+#completar la instalación de WordPress a través de su interfaz web.
+#Sigue las instrucciones en pantalla para configurar tu sitio WordPress, eligiendo idioma, un
+#título, usuario administrador, contraseña y dirección de correo electrónico.
+#Estos pasos te proporcionarán un servidor WordPress funcional en una instancia EC2.
+#Título del sitio: 
+#Nombre de usuario: 
+#Contraseña:
+#Tu correo: (tu correo xd)
+#Visibilidad para los motores de búsqueda: Por defecto
+#Da click en Instalar Wordpress
+#Ingresa http://tu-direccion-ip-publica/index.php/pagina-de-ejemplo
